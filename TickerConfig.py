@@ -6,28 +6,21 @@
 # 刷票模式：1=刷票 2=候补+刷票
 TICKET_TYPE = 2
 
-# 候补最晚兑现日期，目前软件为捡漏加自动候补，所以这个值一定要填，并且这个日期一定要填小于最长订票时间(30天)
-# 格式为日期+小时+分
-# 举例： 比如今天才可以买10.1号的票，比如你那个发车是10.1号上午两点，你兑现时间写到10.1晚上22点？
-# t("#fromDate").val() + "#" + t("#dafaultTime").html().replace("时", "") + "#" + t("#dafaultMinutes").html().replace("分", ""),
-J_Z_PARAM = "2019-09-28#22#59"
-
 # 出发日期(list) "2018-01-06", "2018-01-07"
-# ps: 日期如果是单日，一定要前面补个0，正确做法：2019-01-01， 错误做法：2019-1-1
 STATION_DATES = [
-    "2019-09-25"
+    "2019-10-25"
 ]
 
 # 填入需要购买的车次(list)，"G1353"
-STATION_TRAINS = [
-    "",
-]
+# 修改车次填入规则，注：(以前设置的车次逻辑不变)，如果车次填入为空，那么就是当日乘车所有车次都纳入筛选返回
+# 不填车次是整个list为空才算，如果不是为空，依然会判断车次的，这种是错误的写法 [""], 正确的写法 []
+STATION_TRAINS = []
 
 # 出发城市，比如深圳北，就填深圳就搜得到
-FROM_STATION = ""
+FROM_STATION = "深圳北"
 
 # 到达城市 比如深圳北，就填深圳就搜得到
-TO_STATION = ""
+TO_STATION = "长沙南"
 
 # 座位(list) 多个座位ex:
 # "商务座",
@@ -39,20 +32,16 @@ TO_STATION = ""
 # "硬座",
 # "无座",
 # "动卧",
-SET_TYPE = [
-    "",
-]
+SET_TYPE = []
 
 # 当余票小于乘车人，如果选择优先提交，则删减联系人和余票数一致在提交
 # bool
 IS_MORE_TICKET = True
 
 # 乘车人(list) 多个乘车人ex:
-# - "张三"
-# - "李四"
-TICKET_PEOPLES = [
-    "",
-]
+# "张三",
+# "李四"
+TICKET_PEOPLES = []
 
 # 12306登录账号
 USER = ""
@@ -63,6 +52,18 @@ TICKET_BLACK_LIST_TIME = 5
 
 # 自动打码
 IS_AUTO_CODE = True
+
+# 设置2本地自动打码，需要配置tensorflow和keras库，3为云打码，由于云打码服务器资源有限(为2h4C的cpu服务器)，请不要恶意请求，不然只能关闭服务器
+# ps: 请不要一直依赖云服务器资源，在此向所有提供服务器同学表示感谢
+AUTO_CODE_TYPE = 2
+
+# 此处设置云打码服务器地址，如果有自建的服务器，可以自行更改
+HOST = "api.readour.org"
+REQ_URL = "/verify/base64/"
+HTTP_TYPE = "http"
+# HOST="12306.yinaoxiong.cn" #备用服务器稳定性较差
+# REQ_URL="/verify/base64/"
+# HTTP_TYPE="https"
 
 #  邮箱配置，如果抢票成功，将通过邮件配置通知给您
 #  列举163
@@ -78,25 +79,25 @@ IS_AUTO_CODE = True
 #  password: "授权码"
 #  host: "smtp.qq.com"
 EMAIL_CONF = {
-    "IS_MAIL": False,
+    "IS_MAIL": True,
     "email": "",
     "notice_email_list": "",
     "username": "",
     "password": "",
-    "host": "",
+    "host": "smtp.qq.com",
 }
 
-# 是否开启 pushbear 微信提醒， 使用前需要前往 http://pushbear.ftqq.com 扫码绑定获取 send_key 并关注获得抢票结果通知的公众号
-PUSHBEAR_CONF = {
-    "is_pushbear": False,
-    "send_key": ""
+# 是否开启 server酱 微信提醒， 使用前需要前往 http://sc.ftqq.com/3.version 扫码绑定获取 SECRET 并关注获得抢票结果通知的公众号
+SERVER_CHAN_CONF = {
+    "is_server_chan": False,
+    "secret": ""
 }
 
 # 是否开启cdn查询，可以更快的检测票票 1为开启，2为关闭
 IS_CDN = 1
 
 # 下单接口分为两种，1 模拟网页自动捡漏下单（不稳定），2 模拟车次后面的购票按钮下单（稳如老狗）
-ORDER_TYPE = 2
+ORDER_TYPE = 1
 
 # 下单模式 1 为预售，整点刷新，刷新间隔0.1-0.5S, 然后会校验时间，比如12点的预售，那脚本就会在12.00整检票，刷新订单
 #         2 是捡漏，捡漏的刷新间隔时间为0.5-3秒，时间间隔长，不容易封ip
@@ -114,11 +115,19 @@ IS_PROXY = 0
 OPEN_TIME = "13:00:00"
 # 1=使用selenium获取devicesID
 # 2=使用网页端/otn/HttpZF/logdevice获取devicesId，这个接口的算法目前可能有点问题，如果登录一直302的请改为配置1
+# 3=自己打开浏览器在headers-Cookies中抓取RAIL_DEVICEID和RAIL_EXPIRATION，这个就不用配置selenium
 COOKIE_TYPE = 1
-# 如果COOKIE_TYPE=1，则需配置chromeDriver路径(注意是填你机器本地chromeDriver的路径，这个地方一定要改),下载地址http://chromedriver.storage.googleapis.com/index.html
+# 如果COOKIE_TYPE=1，则需配置chromeDriver路径,下载地址http://chromedriver.storage.googleapis.com/index.html
 # chromedriver配置版本只要和chrome的大版本匹配就行
-# 如果是windows,最好在路径加上r, ex: r"/Users/wenxianping/Downloads/chromedriver"
-CHROME_PATH = ""
+CHROME_PATH = "/Users/wenxianping/Downloads/chromedriver"
+
+# 如果COOKIE_TYPE=3, 则需配置RAIL_EXPIRATION、RAIL_DEVICEID的值
+RAIL_EXPIRATION = ""
+RAIL_DEVICEID = ""
+
+
+# 1=>为一直随机ua,2->只启动的时候随机一次ua
+RANDOM_AGENT = 2
 
 PASSENGER_TICKER_STR = {
     '一等座': 'M',
@@ -132,5 +141,11 @@ PASSENGER_TICKER_STR = {
     '硬卧': 3,
 }
 
+# 保护12306官网请求频率，设置随机请求时间，原则为5分钟不大于80次
+# 最大间隔请求时间
+MAX_TIME = 5
+# 最小间隔请求时间
+MIN_TIME = 3
+
 # 软件版本
-RE_VERSION = "1.1.106"
+RE_VERSION = "1.1.117"
